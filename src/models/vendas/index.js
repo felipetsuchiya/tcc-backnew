@@ -1,6 +1,7 @@
 const { Sequelize, DATEONLY } = require("sequelize");
 const sequelize = require("../../db/connection");
-// const Produto = require("../produto");
+const Produto = require("../produto/index");
+const VendaProduto = require("../vendaProdutos/index");
 
 const Vendas = sequelize.define("Vendas", {
   id: {
@@ -26,13 +27,20 @@ const Vendas = sequelize.define("Vendas", {
   },
 
   dataVenda: {
-    type: Sequelize.DATE,
+    type: Sequelize.DATEONLY,
     allowNull: false,
   },
 });
 
-// Vendas.HasMany(Produto, {
-//   through: "ProdutoVenda",
-// });
+Vendas.associate = function (models) {
+  Vendas.belongsToMany(models.Produto, {
+    through: "VendasProdutos",
+    foreignKey: "vendaId",
+  });
+  Produto.belongsToMany(models.Vendas, {
+    through: "VendaProdutos",
+    foreingKey: "VendasId",
+  });
+};
 
 module.exports = Vendas;

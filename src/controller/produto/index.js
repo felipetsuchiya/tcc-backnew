@@ -1,8 +1,8 @@
-const Produto = require("../../models/produto/index.js");
+const Produtos = require("../../models/produto/index.js");
 
 async function findAll(req, res) {
   try {
-    const produtos = await Produto.findAll(); ////{include: [{model: Vendas,through: {attributes: ['descricao']}}]}
+    const produtos = await Produtos.findAll(); ////{include: [{model: Vendas,through: {attributes: ['descricao']}}]}
     res.status(200).json(produtos);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -12,7 +12,7 @@ async function findAll(req, res) {
 function findOne(req, res) {
   try {
     const { name } = req.query;
-    const filteredProducts = Produto.filter((produto) => {
+    const filteredProducts = Produtos.filter((produto) => {
       produto.name.toLowerCase().includes(name.toLowerCase());
     });
     res.status(200).json(filteredProducts);
@@ -25,7 +25,7 @@ async function cria(req, res) {
   try {
     const { nome, marca, tipoDeProduto, tamanho, sabor, preco } = req.body;
 
-    const produto = await Produto.create({
+    const produto = await Produtos.create({
       nome,
       tipoDeProduto,
       sabor,
@@ -43,7 +43,7 @@ async function update(req, res) {
   try {
     const { id } = req.params;
     const { nome, marca, descricao, tamanho, sabor } = req.body;
-    const produto = await Produto.findByPk(id);
+    const produto = await Produtos.findByPk(id);
     if (!produto) {
       return res.status(404).json({ error: "Produto nao foi encontrado" });
     }
@@ -62,7 +62,7 @@ async function update(req, res) {
 async function apaga(req, res) {
   try {
     const { id } = req.params;
-    const produto = await Produto.findByPk(id);
+    const produto = await Produtos.findByPk(id);
     if (!produto) {
       return res.status(404).json({ error: "Produto nao foi encontrado!" });
     }
