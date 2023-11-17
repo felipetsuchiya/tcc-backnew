@@ -1,6 +1,6 @@
 const { Sequelize, Model } = require("sequelize");
 const sequelize = require("../../db/connection");
-const Vendas = require("../vendas/index")
+const Vendas = require("../vendas/index");
 
 const Produto = sequelize.define("Produto", {
   id: {
@@ -35,13 +35,15 @@ const Produto = sequelize.define("Produto", {
   },
 });
 
-
 // Produto.associate = function (models) {
-  Produto.belongsToMany(Vendas, {
-    through: "VendaProdutos",
-    foreingKey: "VendasId",
-  });
-  Vendas.belongsToMany(Produto, { through: 'VendasProdutos', foreignKey: 'vendaId' });
+Produto.belongsToMany(Vendas, {
+  through: "VendasProduto",
+  foreingKey: "VendasId",
+});
+Vendas.belongsToMany(Produto, {
+  through: "VendasProduto",
+  foreignKey: "vendaId",
+});
 // };
 
 module.exports = Produto;

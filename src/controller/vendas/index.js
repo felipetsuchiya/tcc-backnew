@@ -1,9 +1,27 @@
 const Produtos = require("../../models/produto/index.js");
 const Venda = require("../../models/vendas/index.js");
+const { Sequelize } = require('sequelize')
+const createCsvWriter = require('csv-writer').createObjectCsvWriter;
+const fs = require('fs');
+
 
 async function findAll(req, res) {
   try {
-    const venda = await Venda.findAll(); //{include: [{model: Produto,through: {attributes: ['descricao']}}]}
+    const venda = await Venda.findAll({
+      atributes: [
+        'id',
+        'descricao',
+        'notaFiscal',
+        'dataVenda',
+        [Sequelize.fn('SUM', Sequelize.literal('`Produtos.quantidadeVendida`')), 'totalQuantitySold']
+      ],
+      include: {
+        model: Produtos,
+        through: {
+          attributes: ['quantidadeVendida']
+        }
+      },
+    }); //{include: [{model: Produto,through: {attributes: ['descricao']}}]}
     res.status(200).json(venda);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -20,52 +38,59 @@ function findOne(req, res) {
   }
 }
 
+
+
 async function cria(req, res) {
   try {
     var valorTotal = 0;
     const { descricao, notaFiscal, produtosIds } = req.body;
     const dataVenda = new Date();
-    const vendas = await Venda.create(
-      {
-        descricao,
-        notaFiscal,
-        dataVenda,
-        valorTotal,
-      },
-      {
-        include: Produtos,
-      }
-    );
+
+    // Create a new sale
+    const venda = await Venda.create({
+      descricao,
+      notaFiscal,
+      dataVenda,
+      valorTotal,
+    });
 
     // Verifica se há produtos associados à venda
     if (produtosIds.length > 0) {
+      // Find the products based on the provided IDs
       const produtos = await Produtos.findAll({
         where: {
-          id: produtosIds,
+          id: produtosIds.map((i) => i.id),
         },
       });
-      valorTotal = produtos.reduce(
-        (total, produto) => total + produto.preco,
-        0
-      );
-      // Atualiza o valorTotal da venda
-      await vendas.update({
-        valorTotal,
-      });
-      await vendas.setProdutos(produtos);
-      console.log(produtos);
+
+      console.log("Produtos: ", produtos);
+
+      for (const produto of produtos) {
+        const quantidadeVendida = produtosIds.find((i) => i.id === produto.id);
+
+        console.log("quantidadeVendida:", quantidadeVendida);
+
+        if (quantidadeVendida && quantidadeVendida.quantidade) {
+          valorTotal += produto.preco * quantidadeVendida.quantidade;
+          // Atualiza o valorTotal da venda
+          await venda.update({
+            valorTotal,
+          });
+
+          // Associate the product with the sale in the pivot table
+          await venda.addProdutos(produto, {
+            through: { quantidadeVendida: quantidadeVendida.quantidade },
+          });
+        }
+      }
+
+      console.log("Valor Total: ", valorTotal);
     }
 
-    if (!Array.isArray(produtosIds)) {
-      return res.status(400).json({ error: "produtosIds deve ser uma array" });
-    }
-
-    await vendas.addProdutos(produtosIds);
-    console.log(produtosIds);
-
-    res.status(201).json({ vendas: vendas, produtosIds: produtosIds });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(201).json({ venda: venda, produtosIds: produtosIds });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: e.message || "Internal Server Error" });
   }
 }
 
@@ -78,7 +103,7 @@ async function update(req, res) {
       return res.status(404).json({ error: "Venda nao foi encontrada" });
     }
     vendas.venda = descricao;
-    vendas.notaFiscal = notaFiscal
+    vendas.notaFiscal = notaFiscal;
     vendas.produtosIds = produtosIds;
     await vendas.save();
     res.status(200).json(vendas);

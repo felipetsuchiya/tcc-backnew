@@ -1,40 +1,34 @@
-const { Sequelize, Model, DataTypes } = require("sequelize");
+const { Sequelize } = require("sequelize");
 const sequelize = require("../../db/connection");
 const Produto = require("../produto");
 const Vendas = require("../vendas");
 
-const VendasProduto = sequelize.define("VendaProduto", {
-  id: {
-    type: Sequelize.INTEGER,
-    autoIncrement: true,
-    allowNull: false,
-    primaryKey: true,
-  },
-  ProdutoId: {
-    type: Sequelize.INTEGER,
-    references: {
-      model: Produto,
-      key: "id", // Corrected from "Id"
+const VendasProduto = sequelize.define(
+  "VendasProduto",
+  {
+    id: {
+      type: Sequelize.INTEGER,
+      autoIncrement: true,
+      allowNull: false,
+      primaryKey: true,
+    },
+    quantidadeVendida: {
+      type: Sequelize.INTEGER,
+      allowNull: false,
     },
   },
-  VendasId: {
-    type: Sequelize.INTEGER,
-    references: {
-      model: Vendas,
-      key: "id", // Corrected from "Id"
-    },
-  },
-});
+  { timestamps: false }
+);
 
 VendasProduto.associate = (models) => {
   Vendas.belongsToMany(models.Produto, {
     as: "produtos",
-    through: VendaProdutos,
+    through: VendasProduto,
     foreignKey: "vendaId",
   });
   Produto.belongsToMany(models.Vendas, {
     as: "vendas",
-    through: VendaProdutos,
+    through: VendasProduto,
     foreignKey: "produtoId",
   });
 };
