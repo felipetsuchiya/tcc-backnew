@@ -15,7 +15,7 @@ app.use(routesProdutos);
 app.use(routesVendas);
 app.use(routesVendasProdutos);
 
-sequelize.sync({ force: true })
+sequelize.sync({ force: false })
 .then(() => {
     app.listen(PORT, () => {
         console.log(`Servidor rodando na porta ${PORT} 🚀`)

@@ -43,8 +43,8 @@ function findOne(req, res) {
 async function cria(req, res) {
   try {
     var valorTotal = 0;
-    const { descricao, notaFiscal, produtosIds } = req.body;
-    const dataVenda = new Date();
+    const { descricao, notaFiscal, produtosIds, dataVenda } = req.body;
+    // const dataVenda = new Date();
 
     // Create a new sale
     const venda = await Venda.create({
