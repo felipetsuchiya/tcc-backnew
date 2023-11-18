@@ -23,7 +23,7 @@ function findOne(req, res) {
 
 async function cria(req, res) {
   try {
-    const { nome, marca, tipoDeProduto, tamanho, sabor, preco } = req.body;
+    const { nome, marca, tipoDeProduto, tamanho, sabor, preco, quantidade } = req.body;
 
     const produto = await Produtos.create({
       nome,
@@ -32,6 +32,7 @@ async function cria(req, res) {
       preco,
       marca,
       tamanho,
+      quantidade
     });
     res.status(201).json(produto);
   } catch (error) {
@@ -42,7 +43,7 @@ async function cria(req, res) {
 async function update(req, res) {
   try {
     const { id } = req.params;
-    const { nome, marca, descricao, tamanho, sabor } = req.body;
+    const { nome, marca, descricao, tamanho, sabor, quantidade } = req.body;
     const produto = await Produtos.findByPk(id);
     if (!produto) {
       return res.status(404).json({ error: "Produto nao foi encontrado" });
@@ -52,6 +53,7 @@ async function update(req, res) {
     produto.descricao = descricao;
     produto.tamanho = tamanho;
     produto.sabor = sabor;
+    produto.quantidade = quantidade
     await produto.save();
     res.status(200).json(produto);
   } catch (error) {
