@@ -33,6 +33,10 @@ const Produto = sequelize.define("Produto", {
     type: Sequelize.INTEGER,
     allowNull: false,
   },
+  quantidade: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+  },
 });
 
 // Produto.associate = function (models) {
