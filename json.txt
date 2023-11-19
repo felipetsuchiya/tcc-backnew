@@ -1,0 +1,85 @@
+{
+    {
+		"id": 1,
+		"nome": "Pré treino 3",
+		"tipoDeProduto": "Suplemento Alimentar para pre treinar",
+		"sabor": "Morango",
+		"preco": 100,
+		"marca": "Marca Teste",
+		"tamanho": 1000,
+		"createdAt": "2023-11-17T20:46:53.000Z",
+		"updatedAt": "2023-11-17T20:46:53.000Z"
+	},
+	previsoes: [
+		{
+			"Quantidade deve ser comprada": 4.112500000000001,
+			"mes": 12
+		},
+		{
+			"Quantidade deve ser comprada": 4.0,
+			"mes": 11
+		},
+		{
+			"Quantidade deve ser comprada": 3.8875,
+			"mes": 10
+		},
+		{
+			"Quantidade deve ser comprada": 3.7750000000000004,
+			"mes": 9
+		},
+		{
+			"Quantidade deve ser comprada": 3.6625000000000005,
+			"mes": 8
+		},
+		{
+			"Quantidade deve ser comprada": 3.5500000000000003,
+			"mes": 7
+		},
+		{
+			"Quantidade deve ser comprada": 3.4375,
+			"mes": 6
+		},
+		{
+			"Quantidade deve ser comprada": 3.325,
+			"mes": 5
+		},
+		{
+			"Quantidade deve ser comprada": 3.2125000000000004,
+			"mes": 4
+		},
+		{
+			"Quantidade deve ser comprada": 3.1,
+			"mes": 3
+		},
+		{
+			"Quantidade deve ser comprada": 2.9875000000000003,
+			"mes": 2
+		},
+		{
+			"Quantidade deve ser comprada": 2.875,
+			"mes": 1
+		}
+    ]
+}
+
+async function getPrevisoes(req, res) {
+    //request http da api de provisoes python
+    //obj json => o ID do produto e as provisoes
+    //para cada ID vc faz um select no banco e busca o objeto do produto (for)
+    //res, seria uma lista de produto e provisoes
+
+    let objProvisoes = Map()
+
+    var response = []
+
+    for(let prov in objProvisoes) {
+      let idProduto = prov.key
+      let produto = Venda.findOne({where: idProduto});
+      let produtoProvisao = {}
+      produtoProvisao.produto = produto
+      produtoProvisao.provisoes = prov.value
+      response.push(produtoProvisao)
+    }
+
+    return response
+}

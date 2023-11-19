@@ -2,7 +2,7 @@ const Produtos = require("../../models/produto/index.js");
 
 async function findAll(req, res) {
   try {
-    const produtos = await Produtos.findAll(); ////{include: [{model: Vendas,through: {attributes: ['descricao']}}]}
+    const produtos = await Produtos.findAll(); 
     res.status(200).json(produtos);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -23,7 +23,7 @@ function findOne(req, res) {
 
 async function cria(req, res) {
   try {
-    const { nome, marca, tipoDeProduto, tamanho, sabor, preco } = req.body;
+    const { nome, marca, tipoDeProduto, tamanho, sabor, preco, quantidade } = req.body;
 
     const produto = await Produtos.create({
       nome,
@@ -32,6 +32,7 @@ async function cria(req, res) {
       preco,
       marca,
       tamanho,
+      quantidade,
     });
     res.status(201).json(produto);
   } catch (error) {
