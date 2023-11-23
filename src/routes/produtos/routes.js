@@ -7,6 +7,10 @@ router.post('/produtos', async (req, res) => {
     ProdutoController.cria(req, res)
 })
 
+router.post('/produtos/filtro', async (req, res) => {
+    ProdutoController.findWithFilter(req, res)
+})
+
 router.get('/produto/:name', (req, res) => {
     ProdutoController.findOne(req, res)
 })

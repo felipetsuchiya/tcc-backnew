@@ -1,9 +1,52 @@
+const sequelize = require("../../db/connection.js");
 const Produtos = require("../../models/produto/index.js");
 
 async function findAll(req, res) {
   try {
     const produtos = await Produtos.findAll(); 
     res.status(200).json(produtos);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+async function findWithFilter(req, res) {
+  try {
+    //produtos = await Produtos.findAll(); 
+    var sql = "SELECT * FROM produtos";
+    var whereSql = "";
+    let filter = req.body
+    
+    if(filter.produto != undefined && filter.produto != null && filter.produto != ""){
+      whereSql += " and nome LIKE :produto"
+    }
+    if(filter.tamanho != undefined && filter.tamanho != null){
+      whereSql += " and tamanho = :tamanho"
+    }
+    if(filter.tipo != undefined && filter.tipo != null && filter.tipo != ""){
+      whereSql += " and tipoDeProduto LIKE :tipoDeProduto"
+    }
+    if(filter.sabor != undefined && filter.sabor != null && filter.sabor != ""){
+      whereSql += " and sabor LIKE :sabor"
+    }
+    if(filter.marca != undefined && filter.marca != null && filter.marca != ""){
+      whereSql += " and marca LIKE :marca"
+    }
+    
+    whereSql = whereSql.indexOf(' and ') == 0 ? whereSql.substring(5).trim() : whereSql.trim();
+    if(whereSql != "")sql = sql + " WHERE " +whereSql;
+
+    let resSQL = await sequelize.query(sql, {
+      raw: true,
+      replacements: {
+        produto: "%"+filter.produto+"%",
+        tamanho: filter.tamanho,
+        tipoDeProduto: "%"+filter.tipo+"%",
+        sabor: "%"+filter.sabor+"%",
+        marca: "%"+filter.marca+"%",
+      },
+    });
+    res.status(200).json(resSQL[0]);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -75,4 +118,4 @@ async function apaga(req, res) {
   }
 }
 
-module.exports = { findAll, cria, findOne, update, apaga };
+module.exports = { findAll, cria, findOne, findWithFilter, update, apaga };
