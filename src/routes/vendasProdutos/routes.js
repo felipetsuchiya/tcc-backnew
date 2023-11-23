@@ -7,4 +7,8 @@ router.get('/vendasprod', async (req, res) => {
     VendasProdutosController.findAll(req, res)
 })
 
+router.get('/produtomaisoumenos', async (req, res) => {
+    VendasProdutosController.mostSoldProduct(req, res)
+})
+
 module.exports = router;
