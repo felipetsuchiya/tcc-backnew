@@ -8,6 +8,10 @@ router.post('/vendas', async (req, res) => {
     VendasController.cria(req, res)
 })
 
+router.post('/vendas/filtro', async (req, res) => {
+    VendasController.findWithFilter(req, res)
+})
+
 router.get('/vendas/:id', (req, res) => {
     VendasController.findOne(req, res)
 })

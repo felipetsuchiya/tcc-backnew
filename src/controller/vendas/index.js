@@ -1,9 +1,8 @@
 const Produtos = require("../../models/produto/index.js");
 const Venda = require("../../models/vendas/index.js");
 const { Sequelize } = require('sequelize')
-const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 const fs = require('fs');
-
+const Op = Sequelize.Op;
 
 async function findAll(req, res) {
   try {
@@ -23,6 +22,58 @@ async function findAll(req, res) {
       },
     }); //{include: [{model: Produto,through: {attributes: ['descricao']}}]}
     res.status(200).json(venda);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+async function findWithFilter(req, res) {
+  try {
+    let filter = req. body
+    var filterSaleProduct = {};
+    var filterProduct = {};
+    
+    if(isValid(filter.produto)){
+      filterSaleProduct.nome = {
+        [Op.like]: "%"+filter.produto+"%"
+      };
+    }
+    if(isValid(filter.id)){
+      filterProduct.id = filter.id;
+    }
+    if(isValid(filter.dataInicio) && isValid(filter.dataFim)){
+      filterProduct.dataVenda = {
+        [Op.between]: [filter.dataInicio, filter.dataFim]
+      };
+    } else if(isValid(filter.dataFim)) {
+      filterProduct.dataVenda = {
+        [Op.lt]: filter.dataFim,
+      };
+    } else if(isValid(filter.dataInicio)) {
+      filterProduct.dataVenda = {
+        [Op.gt]: filter.dataInicio,
+      };
+    }
+    
+    const venda = await Venda.findAll({
+      atributes: [
+        'id',
+        'descricao',
+        'notaFiscal',
+        'dataVenda',
+        [Sequelize.fn('SUM', Sequelize.literal('`Produtos.quantidadeVendida`')), 'totalQuantitySold']
+      ],
+      include: {
+        model: Produtos,
+        through: {
+          attributes: ['quantidadeVendida']
+        },
+        where: filterSaleProduct
+      },
+      where: filterProduct
+    }); //{include: [{model: Produto,through: {attributes: ['descricao']}}]}
+    res.status(200).json(venda);
+    //res.status(200).json(resSQL[0]);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -126,4 +177,11 @@ async function apaga(req, res) {
   }
 }
 
-module.exports = { findAll, cria, findOne, update, apaga };
+function isValid(param) {
+  if(param != undefined && param != null && param != ""){
+    return true;
+  }
+  return false;
+}
+
+module.exports = { findWithFilter, findAll, cria, findOne, update, apaga };
