@@ -86,7 +86,7 @@ async function cria(req, res) {
 async function update(req, res) {
   try {
     const { id } = req.params;
-    const { nome, marca, descricao, tamanho, sabor, quantidade } = req.body;
+    const { nome, marca, descricao, tamanho, sabor, quantidade, tipoDeProduto, preco } = req.body;
     const produto = await Produtos.findByPk(id);
     if (!produto) {
       return res.status(404).json({ error: "Produto nao foi encontrado" });
@@ -97,6 +97,8 @@ async function update(req, res) {
     produto.tamanho = tamanho;
     produto.sabor = sabor;
     produto.quantidade = quantidade
+    produto.tipoDeProduto = tipoDeProduto;
+    produto.preco = preco
     await produto.save();
     res.status(200).json(produto);
   } catch (error) {
